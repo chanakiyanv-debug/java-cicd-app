@@ -1,4 +1,4 @@
-pipeline {
+wpipeline {
   agent any
   tools { maven 'maven3' }
   environment {
@@ -14,7 +14,7 @@ pipeline {
     stage('SonarQube Analysis') {
       steps {
         withSonarQubeEnv('sonar') {
-          sh 'mvn sonar:sonar -Dsonar.projectKey=java-cicd-app'
+          sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.0.0.4389:sonar -Dsonar.projectKey=java-cicd-app'
         }
       }
     }
