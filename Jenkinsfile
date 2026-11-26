@@ -1,6 +1,9 @@
 pipeline {
   agent any
   tools { maven 'maven3' }
+  environment {
+    IMAGE = "chandockerhub/java-cicd-app"
+  }
   stages {
     stage('Checkout') {
       steps { checkout scm }
@@ -12,6 +15,18 @@ pipeline {
       steps {
         withSonarQubeEnv('sonar') {
           sh 'mvn sonar:sonar -Dsonar.projectKey=java-cicd-app'
+        }
+      }
+    }
+    stage('Docker Build') {
+      steps { sh 'docker build -t $IMAGE:$BUILD_NUMBER -t $IMAGE:latest .' }
+    }
+    stage('Push to DockerHub') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DH_USER', passwordVariable: 'DH_PASS')]) {
+          sh 'echo $DH_PASS | docker login -u $DH_USER --password-stdin'
+          sh 'docker push $IMAGE:$BUILD_NUMBER'
+          sh 'docker push $IMAGE:latest'
         }
       }
     }
