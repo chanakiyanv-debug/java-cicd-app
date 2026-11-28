@@ -1,4 +1,4 @@
- pipeline {
+pipeline {
   agent any
   tools { maven 'maven3' }
   environment {
@@ -28,6 +28,11 @@
           sh 'docker push $IMAGE:$BUILD_NUMBER'
           sh 'docker push $IMAGE:latest'
         }
+      }
+    }
+    stage('Deploy with Ansible') {
+      steps {
+        sh 'ansible-playbook -i ansible/inventory.ini ansible/deploy.yml -e image=$IMAGE:$BUILD_NUMBER'
       }
     }
   }
